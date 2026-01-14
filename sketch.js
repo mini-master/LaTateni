@@ -15,7 +15,7 @@ function draw() {
   background(10, 10, 10, 50); // r, g, b, alpha for trail
   
   // Dynamic accent color
-  let accent = color(99, 102, 240); // #6366f1
+  let accent = color(99, 102, 241); // #6366f1
   fill(accent);
   
   // Interactive element
