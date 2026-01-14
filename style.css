@@ -1,27 +1,11 @@
-:root {
-  --bg-color: #0a0a0a;
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --accent-color: #6366f1;
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --blur-amount: 12px;
-}
-
-* {
-  box-sizing: border-box;
-}
-
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--bg-color);
-  color: var(--text-primary);
-  font-family: 'Inter', sans-serif;
-  overflow: hidden; /* Prevent scrollbars since canvas is full screen */
+  background-color: #ffffff;
+  font-family: 'Segoe UI', sans-serif;
+  overflow: hidden;
 }
 
-/* Canvas Background */
 #canvas-container {
   position: fixed;
   top: 0;
@@ -31,131 +15,131 @@ body {
   z-index: 0;
 }
 
-/* UI Overlay */
-.ui-overlay {
-  position: relative;
-  z-index: 10; /* Above canvas */
+/* Sidebar Core */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
   height: 100vh;
-  pointer-events: none; /* Let clicks pass through to canvas where possible */
+  width: 60px;
+  /* Collapsed width */
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  transition: width 0.3s ease;
+  z-index: 100;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 2rem;
+  overflow: hidden;
+  /* Hide text when collapsed */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
 }
 
-/* Enable pointer events only on direct UI children */
-.ui-overlay > * {
-  pointer-events: auto;
+.sidebar.expanded {
+  width: 250px;
+  /* Expanded width */
 }
 
-/* Header */
-.app-header {
+/* Header / Toggle */
+.sidebar-header {
+  height: 60px;
+  min-height: 60px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--blur-amount));
-  -webkit-backdrop-filter: blur(var(--blur-amount));
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  background-color: #fafafa;
 }
 
-.logo {
-  font-weight: 600;
-  font-size: 1.25rem;
-  letter-spacing: -0.02em;
+.sidebar-header:hover {
+  background-color: #f0f0f0;
 }
 
-.app-header nav a {
-  color: var(--text-secondary);
+.menu-icon {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  /* Prevent icon from shrinking */
+}
+
+.menu-icon span {
+  width: 20px;
+  height: 2px;
+  background-color: #333;
+  margin: 2px 0;
+  transition: 0.2s;
+}
+
+/* Logo Text (Hidden when collapsed) */
+.logo-text {
+  font-weight: bold;
+  font-size: 1.1rem;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+  color: #333;
+}
+
+.sidebar.expanded .logo-text {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Nav Links */
+.nav-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-links li a {
+  height: 50px;
+  display: flex;
+  align-items: center;
   text-decoration: none;
-  margin-left: 2rem;
-  font-size: 0.9rem;
-  transition: color 0.2s;
+  color: #555;
+  transition: background 0.2s;
 }
 
-.app-header nav a:hover, .app-header nav a.active {
-  color: var(--text-primary);
+.nav-links li a:hover {
+  background-color: #f5f5f5;
+  color: #000;
 }
 
-/* Controls Panel */
-.controls-panel {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--blur-amount));
-  -webkit-backdrop-filter: blur(var(--blur-amount));
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 2rem;
-  max-width: 340px;
-  margin-bottom: 2rem; /* Initial position */
-  animation: floatUp 0.8s ease-out forwards;
-}
-
-@keyframes floatUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.controls-panel h1 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.controls-panel p {
-  margin: 0 0 1.5rem 0;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-/* Slider */
-.control-group {
-  margin-bottom: 1.5rem;
-}
-
-.control-group label {
-  display: block;
+/* Icon Placeholders */
+.icon-box {
+  width: 60px;
+  /* Matches sidebar width */
+  min-width: 60px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #888;
 }
 
-input[type=range] {
-  width: 100%;
-  background: transparent;
+/* Link Text */
+.link-text {
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s;
+  /* Faster fade in/out */
+  pointer-events: none;
+  /* Prevent interaction when hidden if needed */
 }
 
-input[type=range]::-webkit-slider-thumb {
-  height: 16px;
-  width: 16px;
-  border-radius: 50%;
-  background: var(--accent-color);
-  cursor: pointer;
-  margin-top: -6px;
-  transition: transform 0.1s;
-}
-
-input[type=range]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-}
-
-input[type=range]::-webkit-slider-runnable-track {
-  width: 100%;
-  height: 4px;
-  cursor: pointer;
-  background: var(--glass-border);
-  border-radius: 2px;
-}
-
-.status-display {
-  font-family: monospace;
-  color: var(--text-secondary);
-  font-size: 0.8rem;
+/* Show text when expanded */
+.sidebar.expanded .link-text {
+  opacity: 1;
+  pointer-events: auto;
+  transition-delay: 0.1s;
+  /* Slight delay so width opens first */
 }
