@@ -1,13 +1,46 @@
 <!DOCTYPE html>
-<html lang="da">
+<html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>Min App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LaTateni | Creative Sketch</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
   <script src="sketch.js" defer></script>
 </head>
+
 <body>
+  <div id="canvas-container"></div>
+
+  <main class="ui-overlay">
+    <header class="app-header">
+      <div class="logo">LaTateni</div>
+      <nav>
+        <a href="#" class="active">Sketch</a>
+        <a href="#">About</a>
+      </nav>
+    </header>
+
+    <section class="controls-panel">
+      <h1>Interactive Canvas</h1>
+      <p>Move your mouse to interact with the digital void.</p>
+
+      <div class="control-group">
+        <label for="speed-slider">Intensity</label>
+        <input type="range" id="speed-slider" min="0" max="100" value="50">
+      </div>
+
+      <div class="status-display">
+        <span id="fps-counter">FPS: --</span>
+      </div>
+    </section>
+  </main>
 </body>
+
 </html>
