@@ -15,6 +15,118 @@
 
   <div id="canvas-container"></div>
 
+  <main class="content-container">
+    <h1>Spiller Oversigt</h1>
+
+    <!-- Search Section -->
+    <div class="search-section">
+      <input type="text" id="player-search" placeholder="Søg efter spillere, stil eller tags..."
+        onkeyup="filterPlayers()">
+    </div>
+
+    <!-- Add Player Form -->
+    <div class="player-form-card">
+      <div class="form-header" onclick="toggleForm()">
+        <h2>Tilføj Ny Spiller +</h2>
+      </div>
+
+      <div id="form-content" class="form-content collapsed">
+        <div class="form-grid">
+          <!-- Billede & Navn -->
+          <div class="form-group full-width">
+            <label>Navn</label>
+            <input type="text" id="player-name" placeholder="F.eks. Jonathan Groth">
+          </div>
+          <!-- Alder & Højde -->
+          <div class="form-group">
+            <label>Alder</label>
+            <input type="number" id="player-age" placeholder="År">
+          </div>
+          <div class="form-group">
+            <label>Højde (cm)</label>
+            <input type="number" id="player-height" placeholder="cm">
+          </div>
+
+          <!-- Niveau & Rating -->
+          <div class="form-group">
+            <label>Niveau</label>
+            <select id="player-level">
+              <option value="Begynder">Begynder</option>
+              <option value="Letøvet">Letøvet</option>
+              <option value="Øvet">Øvet</option>
+              <option value="Elite">Elite</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Rating</label>
+            <input type="number" id="player-rating" placeholder="Rating tal">
+          </div>
+
+          <!-- Bat & Hånd -->
+          <div class="form-group">
+            <label>Hånd</label>
+            <select id="player-hand">
+              <option value="Højre">Højre</option>
+              <option value="Venstre">Venstre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Greb</label>
+            <select id="player-grip">
+              <option value="Shakehand">Shakehand</option>
+              <option value="Penhold">Penhold</option>
+            </select>
+          </div>
+
+          <!-- Spillestil -->
+          <div class="form-group">
+            <label>Stil</label>
+            <select id="player-style">
+              <option value="Offensiv">Offensiv (Aggressiv)</option>
+              <option value="Allround">Allround</option>
+              <option value="Defensiv">Defensiv (Passiv)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Skru</label>
+            <select id="player-spin">
+              <option value="Meget">Meget Skru</option>
+              <option value="Mellem">Mellem Skru</option>
+              <option value="Lidt">Lidt Skru (Fladt)</option>
+            </select>
+          </div>
+
+          <!-- Tekstfelter -->
+          <div class="form-group full-width">
+            <label>Motivation (Hvorfor spille bordtennis?)</label>
+            <input type="text" id="player-motivation" placeholder="F.eks. For at vinde, hygge, motion...">
+          </div>
+          <div class="form-group full-width">
+            <label>Noter / Analyse</label>
+            <textarea id="player-notes" rows="3" placeholder="Andre relevante observationer..."></textarea>
+          </div>
+
+          <!-- Tags & Billede -->
+          <div class="form-group full-width">
+            <label>Tags (komma-separeret)</label>
+            <input type="text" id="player-tags" placeholder="Hurtige fødder, God serv, Prikker...">
+          </div>
+          <div class="form-group full-width">
+            <label>Billede</label>
+            <input type="file" id="player-image" accept="image/*">
+          </div>
+        </div>
+
+        <button onclick="addPlayer()" class="add-btn">Gem Spiller</button>
+      </div>
+    </div>
+
+    <!-- Player Grid -->
+    <div id="player-grid" class="player-grid">
+      <!-- Players will be inserted here by JS -->
+    </div>
+  </main>
+
   <nav id="sidebar" class="sidebar">
     <div class="sidebar-header" onclick="toggleSidebar()">
       <div class="menu-icon">
@@ -29,35 +141,31 @@
       <li>
         <a href="index.html">
           <div class="icon-box">T1</div>
-          <span class="link-text">Test 1</span>
+          <span class="link-text">Start</span>
         </a>
       </li>
       <li>
         <a href="Spillere.html">
-          <div class="icon-box">T2</div>
-          <span class="link-text">Test 2</span>
+          <div class="icon-box"><img src="Images/SpillereIcon.png" alt="SP" style="max-width: 30px; max-height: 30px;">
+          </div>
+          <span class="link-text">Spillere</span>
         </a>
       </li>
       <li>
-        <a href="#">
+        <a href="TræningsPas.html">
           <div class="icon-box">T3</div>
-          <span class="link-text">Test 3</span>
+          <span class="link-text">Trænings Pas</span>
         </a>
       </li>
       <li>
-        <a href="#">
+        <a href="Teori.html">
           <div class="icon-box">T4</div>
-          <span class="link-text">Test 4</span>
+          <span class="link-text">Teori</span>
         </a>
       </li>
     </ul>
   </nav>
 
-  <script>
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('expanded');
-    }
-  </script>
 
 </body>
 
