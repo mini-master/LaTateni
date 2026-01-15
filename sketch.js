@@ -1,76 +1,102 @@
-function setup() {
+// LaTateni Logic - Firebase Edition
+import { db, auth } from './firebase-config.js';
+import { collection, addDoc, deleteDoc, doc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+let currentUser = null;
+let unsubscribePlayers = null; // To stop listener on logout
+
+// -- Auth Check --
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUser = user;
+    if (document.getElementById('player-grid')) {
+      loadPlayersRealtime(user.uid);
+    }
+  } else {
+    // If not logged in, go to login page
+    window.location.href = 'index.html';
+  }
+});
+
+// -- Global Setup for p5.js --
+window.setup = function () {
   let canvas = createCanvas(windowWidth, windowHeight);
 }
 
-function draw() {
+window.draw = function () {
   background(255);
 }
 
-
-function windowResized() {
+window.windowResized = function () {
   resizeCanvas(windowWidth, windowHeight);
 }
 
-function toggleSidebar() {
+// -- Sidebar Logic & Logout --
+window.toggleSidebar = function () {
   const sidebar = document.getElementById('sidebar');
   const isExpanded = sidebar.classList.contains('expanded');
 
   if (isExpanded) {
-    // Collapse: Set explicit width first to ensure transition works from current pixel value
     sidebar.style.width = sidebar.scrollWidth + 15 + 'px';
-
-    // Force browser to register the explicit width (reflow)
-    sidebar.offsetHeight;
-
-    // Now set to collapsed width
+    sidebar.offsetHeight; // Force reflow
     sidebar.classList.remove('expanded');
     sidebar.style.width = '60px';
   } else {
-    // Expand: 
-    // 1. Temporarily allow sidebar to take natural width to measure it
     sidebar.style.width = 'auto';
-    sidebar.classList.add('expanded'); // Apply logic that shows text so we get full width
-
-    // 2. Measure the width
+    sidebar.classList.add('expanded');
     const targetWidth = sidebar.scrollWidth + 15 + 'px';
-
-    // 3. Reset to starting point (collapsed) INSTANTLY
     sidebar.classList.remove('expanded');
     sidebar.style.width = '60px';
-
-    // 4. Force reflow so browser knows we are starting from 60px
-    sidebar.offsetHeight;
-
-    // 5. Animate to target
+    sidebar.offsetHeight; // Force reflow
     sidebar.classList.add('expanded');
     sidebar.style.width = targetWidth;
   }
 }
 
+window.logout = async function () {
+  try {
+    await signOut(auth);
+    // onAuthStateChanged will handle redirect
+  } catch (error) {
+    console.error("Logout failed", error);
+  }
+}
+
 /* =========================================
-   Player Management Logic
+   Player Management Logic (Firebase)
    ========================================= */
 
-// Run when page loads
-document.addEventListener('DOMContentLoaded', () => {
-  // Check if we are on the Spillere page
-  if (document.getElementById('player-grid')) {
-    renderPlayers();
-  }
-});
+let allPlayersCache = []; // Store real-time list
 
-function toggleForm() {
+window.toggleForm = function () {
   const content = document.getElementById('form-content');
   content.classList.toggle('collapsed');
 }
 
-function getPlayers() {
-  const players = localStorage.getItem('latateni_players');
-  return players ? JSON.parse(players) : [];
+// -- Real-time Listener (User Isolated) --
+function loadPlayersRealtime(userId) {
+  // Query only players owned by THIS user
+  const q = query(collection(db, "players"), where("ownerId", "==", userId));
+
+  if (unsubscribePlayers) unsubscribePlayers(); // Clear old listener if any
+
+  unsubscribePlayers = onSnapshot(q, (snapshot) => {
+    allPlayersCache = [];
+    snapshot.forEach((doc) => {
+      // Use Firestore ID as the player ID
+      allPlayersCache.push({ id: doc.id, ...doc.data() });
+    });
+    renderGrid(allPlayersCache);
+  }, (error) => {
+    console.error("Error getting players:", error);
+  });
 }
 
-function addPlayer() {
-  // Get all input elements
+// -- Add Player --
+window.addPlayer = function () {
+  if (!currentUser) return;
+
   const name = document.getElementById('player-name').value.trim();
   const age = document.getElementById('player-age').value;
   const height = document.getElementById('player-height').value;
@@ -89,58 +115,69 @@ function addPlayer() {
 
   const tags = tagsInput.split(',').map(t => t.trim()).filter(t => t);
 
-  // Handle Image
+  const playerData = {
+    name, age, height, level, rating, hand, grip, style, spin, motivation, notes, tags,
+    ownerId: currentUser.uid, // <--- CRITICAL: ASSIGN OWNER
+    createdAt: Date.now() // Timestamps are good
+  };
+
+  // Handle Image (Base64)
   if (imageInput.files && imageInput.files[0]) {
     const reader = new FileReader();
     reader.onload = function (e) {
-      savePlayerToStorage({
-        name, age, height, level, rating, hand, grip, style, spin, motivation, notes, tags,
-        image: e.target.result
-      });
+      playerData.image = e.target.result;
+      savePlayerToFirestore(playerData);
     };
     reader.readAsDataURL(imageInput.files[0]);
   } else {
-    savePlayerToStorage({
-      name, age, height, level, rating, hand, grip, style, spin, motivation, notes, tags,
-      image: null
-    });
+    playerData.image = null;
+    savePlayerToFirestore(playerData);
   }
 }
 
-function savePlayerToStorage(playerData) {
-  const players = getPlayers();
-  playerData.id = Date.now();
-
-  players.push(playerData);
-  localStorage.setItem('latateni_players', JSON.stringify(players));
-
-  // Reload Page to reset form and show new listing
-  location.reload();
+async function savePlayerToFirestore(data) {
+  try {
+    await addDoc(collection(db, "players"), data);
+    // Clear form or reload? Reload is simplest to reset everything visually
+    // accessible UX: better to just clear form, but for now reload mimics old behavior
+    location.reload();
+  } catch (e) {
+    console.error("Error adding player: ", e);
+    alert("Fejl: Kunne ikke gemme spilleren. " + e.message);
+  }
 }
 
-function deletePlayer(id) {
-  if (!confirm('Er du sikker på, at du vil slette denne spiller?')) return;
+// -- Delete Player --
+window.deletePlayer = async function (id) {
+  if (!confirm('Er du sikker på, at du vil slette denne spiller permanent?')) return;
 
-  let players = getPlayers();
-  players = players.filter(p => p.id !== id);
-  localStorage.setItem('latateni_players', JSON.stringify(players));
-  renderPlayers(); // Re-render without reload
+  try {
+    await deleteDoc(doc(db, "players", id));
+    // No need to reload, onSnapshot will update the grid automatically!
+  } catch (e) {
+    console.error("Error deleting player: ", e);
+    alert("Fejl: Kunne ikke slette spilleren.");
+  }
 }
 
-function filterPlayers() {
+// -- Helpers --
+window.filterPlayers = function () {
   const query = document.getElementById('player-search').value.toLowerCase();
-  const players = getPlayers();
-
-  const filtered = players.filter(p => {
-    const text = (p.name + " " + p.tags.join(" ") + " " + p.style + " " + p.level + " " + p.hand).toLowerCase();
+  const filtered = allPlayersCache.filter(p => {
+    const text = (p.name + " " + (p.tags ? p.tags.join(" ") : "") + " " + p.style + " " + p.level + " " + p.hand).toLowerCase();
     return text.includes(query);
   });
-
   renderGrid(filtered);
 }
 
-function renderPlayers() {
-  renderGrid(getPlayers());
+window.exportPlayersJson = function () {
+  const jsonStr = JSON.stringify(allPlayersCache, null, 2);
+  navigator.clipboard.writeText(jsonStr).then(() => {
+    alert("Data kopieret til udklipsholder! (Backup)");
+  }).catch(err => {
+    console.error('Kunne ikke kopiere: ', err);
+    alert("Kunne ikke kopiere.");
+  });
 }
 
 function renderGrid(players) {
@@ -153,12 +190,10 @@ function renderGrid(players) {
     const card = document.createElement('div');
     card.className = 'player-card';
 
-    // Generate Tags HTML
-    const tagsHtml = player.tags.map(tag => `<span class="tag-badge">${tag}</span>`).join('');
-
-    // Short Hand/Grip info
+    const tagsHtml = player.tags ? player.tags.map(tag => `<span class="tag-badge">${tag}</span>`).join('') : '';
     const handInfo = `${player.hand} / ${player.grip}`;
 
+    // Note: onclick uses quotes for string ID
     card.innerHTML = `
             <div class="card-header">
                 <div class="card-image" ${player.image ? 'style="background-image: url(' + player.image + '); background-size: cover; background-position: center;"' : 'style="background:#eee; display:flex; align-items:center; justify-content: center;"'}>
@@ -184,17 +219,16 @@ function renderGrid(players) {
                 ${player.notes ? `<div class="player-notes">"${player.notes}"</div>` : ''}
 
                 <div class="tags-container">${tagsHtml}</div>
-                <button class="delete-btn" onclick="deletePlayer(${player.id})">Slet Spiller</button>
+                <button class="delete-btn" onclick="deletePlayer('${player.id}')">Slet Spiller</button>
             </div>
         `;
-
     grid.appendChild(card);
   });
 }
 
 function getLevelColor(level) {
-  if (level === 'Elite') return '#d4af37'; // Gold
+  if (level === 'Elite') return '#d4af37';
   if (level === 'Øvet') return '#333';
   if (level === 'Letøvet') return '#666';
-  return '#888'; // Begynder
+  return '#888';
 }
