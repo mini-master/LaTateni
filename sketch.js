@@ -1,5 +1,5 @@
 // LaTateni Logic - Firebase Edition
-import { db, auth } from './firebase-config.js';
+import { db, auth, ADMIN_EMAILS } from './firebase-config.js';
 import { collection, addDoc, deleteDoc, doc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
@@ -10,6 +10,13 @@ let unsubscribePlayers = null; // To stop listener on logout
 onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUser = user;
+
+    // Show Admin Link if allowed
+    if (ADMIN_EMAILS.includes(user.email)) {
+      const adminLink = document.getElementById('admin-link');
+      if (adminLink) adminLink.style.display = 'block';
+    }
+
     if (document.getElementById('player-grid')) {
       loadPlayersRealtime(user.uid);
     }

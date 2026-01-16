@@ -1,4 +1,4 @@
-import { auth } from './firebase-config.js';
+import { auth, ADMIN_EMAILS } from './firebase-config.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -23,8 +23,13 @@ const firebaseConfig = {
 onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = 'index.html';
+    } else {
+        // Strict Admin Check
+        if (!ADMIN_EMAILS.includes(user.email)) {
+            alert("Ingen adgang. Kun for administratorer.");
+            window.location.href = 'home.html';
+        }
     }
-    // Future: Check if user.email === 'linus@...'
 });
 
 window.createCoach = async function () {

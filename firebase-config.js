@@ -17,5 +17,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
+const ADMIN_EMAILS = ["linusradk@gmail.com"];
 
-export { db, auth, googleProvider };
+export { db, auth, googleProvider, ADMIN_EMAILS };
