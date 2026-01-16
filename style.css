@@ -120,6 +120,7 @@ body {
   width: 60px;
   /* Matches sidebar width */
   min-width: 60px;
+  flex-shrink: 0;
   height: 50px;
   display: flex;
   align-items: center;
@@ -150,6 +151,194 @@ body {
   pointer-events: auto;
   transition-delay: 0.1s;
   /* Slight delay so width opens first */
+}
+
+/* Sidebar Footer - Bottom buttons */
+.sidebar-footer {
+  margin-top: auto;
+  padding-bottom: 20px;
+}
+
+.sidebar-footer a {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #333;
+  transition: background 0.2s;
+}
+
+.sidebar-footer a:hover {
+  background-color: #f5f5f5;
+  color: #000;
+}
+
+/* Ensure footer icon-box stays 60px wide */
+.sidebar-footer .icon-box {
+  width: 60px;
+  min-width: 60px;
+  flex-shrink: 0;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ensure footer links behave exactly like nav links */
+.sidebar-footer .link-text {
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.sidebar.expanded .sidebar-footer .link-text {
+  opacity: 1;
+  pointer-events: auto;
+  transition-delay: 0.1s;
+}
+
+
+/* =========================================
+   Modal Styles (for Theory)
+   ========================================= */
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #aaa;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.theory-links ul {
+  list-style: none;
+  padding: 0;
+}
+
+.theory-links li {
+  margin: 5px 0;
+}
+
+.theory-links a {
+  color: #2196F3;
+  text-decoration: none;
+}
+
+.theory-links a:hover {
+  text-decoration: underline;
+}
+
+
+/* =========================================
+   AI Features Styles
+   ========================================= */
+
+.ai-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.ai-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.ai-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ai-btn-small {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+/* AI Loading Spinner */
+.ai-loading {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* AI Result Modal Enhancements */
+.ai-result-content {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 15px 0;
+  border-left: 4px solid #667eea;
+  white-space: pre-wrap;
+  line-height: 1.8;
+}
+
+.ai-result-content h3 {
+  color: #667eea;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.ai-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 10px;
 }
 
 

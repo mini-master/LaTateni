@@ -19,4 +19,14 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 const ADMIN_EMAILS = ["linusradk@gmail.com"];
 
+// ====================================
+// GEMINI AI API KEY
+// ====================================
+// TODO: Tilføj din Gemini API nøgle her!
+// 1. Gå til Firebase Console → Build → AI Logic
+// 2. Aktivér Gemini API
+//3. Kopier din API nøgle
+// 4. Indsæt den herunder:
+export const GEMINI_API_KEY = "AIzaSyB03S-WLVmkVWYi6-EeW909CrAZGnXoD9A"; // <-- INDSÆT DIN API NØGLE HER
+
 export { db, auth, googleProvider, ADMIN_EMAILS };

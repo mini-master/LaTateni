@@ -171,13 +171,26 @@
           <span class="link-text">Teori</span>
         </a>
       </li>
+      <li>
+        <a href="Øvelser.html">
+          <div class="icon-box">T5</div>
+          <span class="link-text">Øvelser</span>
+        </a>
+      </li>
     </ul>
 
-    <div style="position: absolute; bottom: 20px; width: 100%; text-align: center;">
-      <a href="#" onclick="logout(); return false;"
-        style="color: #666; text-decoration: none; font-size: 0.9rem; display: flex; flex-direction: column; align-items: center;">
-        <span style="font-size: 1.5rem;">🚪</span>
-        <span class="link-text" style="font-size: 0.8rem;">Log ud</span>
+    <div class="sidebar-footer">
+      <a id="admin-link" href="admin.html" style="display: none;">
+        <div class="icon-box">
+          <img src="Images/admin.png" alt="Admin" style="max-width: 25px; max-height: 25px;">
+        </div>
+        <span class="link-text">Tilføj Træner</span>
+      </a>
+      <a href="#" onclick="logout(); return false;">
+        <div class="icon-box">
+          <img src="Images/back.png" alt="Log ud" style="max-width: 25px; max-height: 25px;">
+        </div>
+        <span class="link-text">Log ud</span>
       </a>
     </div>
   </nav>

@@ -4,16 +4,89 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LaTateni</title>
+  <title>LaTateni - Træningspas</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="Images/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
-  <script type="module" src="sketch.js"></script>
+  <script type="module" src="trainingPrograms.js"></script>
 </head>
 
 <body>
 
   <div id="canvas-container"></div>
+
+  <main class="content-container">
+    <h1>Træningspas</h1>
+
+    <!-- Search Section -->
+    <div class="search-section">
+      <input type="text" id="program-search" placeholder="Søg efter træningspas..." onkeyup="filterPrograms()">
+    </div>
+
+    <!-- Add Program Form -->
+    <div class="player-form-card">
+      <div class="form-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 onclick="toggleProgramForm()" style="cursor: pointer; flex-grow: 1;">Opret Nyt Træningspas +</h2>
+        <button onclick="generateProgramAI()" class="ai-btn ai-btn-small" style="margin-left: 10px;">
+          ✨ AI Auto-Generer
+        </button>
+      </div>
+
+      <div id="program-form-content" class="form-content collapsed">
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label>Navn på Træningspas</label>
+            <input type="text" id="program-name" placeholder="F.eks. Forhånd fokus træning">
+          </div>
+
+          <div class="form-group">
+            <label>Total Varighed</label>
+            <input type="text" id="program-duration" placeholder="F.eks. 90 min">
+          </div>
+
+          <div class="form-group full-width">
+            <label>Beskrivelse</label>
+            <textarea id="program-description" rows="2" placeholder="Beskriv træningsprogrammet..."></textarea>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Øvelser i programmet</label>
+            <div id="selected-exercises-list"
+              style="margin-bottom: 15px; padding: 10px; background: #f9f9f9; border-radius: 6px; min-height: 50px;">
+              <p style="color: #999; text-align: center;" id="no-exercises-msg">Ingen øvelser tilføjet endnu</p>
+            </div>
+            <select id="exercise-selector"
+              style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ddd;">
+              <option value="">Vælg en øvelse fra banken...</option>
+            </select>
+            <button type="button" onclick="addExerciseToProgram()" class="add-btn"
+              style="width: auto; padding: 8px 16px; font-size: 0.9rem;">
+              + Tilføj Øvelse
+            </button>
+          </div>
+        </div>
+
+        <button onclick="saveProgram()" class="add-btn">Gem Træningspas</button>
+      </div>
+    </div>
+
+    <!-- Program Grid -->
+    <div id="program-grid" class="player-grid">
+      <!-- Programs will be inserted here by JS -->
+    </div>
+  </main>
+
+  <!-- Modal for program details -->
+  <div id="program-modal" class="modal" onclick="closeProgramModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="close-btn" onclick="closeProgramModal()">&times;</span>
+      <div id="program-modal-body"></div>
+    </div>
+  </div>
 
   <nav id="sidebar" class="sidebar">
     <div class="sidebar-header" onclick="toggleSidebar()">
@@ -51,7 +124,27 @@
           <span class="link-text">Teori</span>
         </a>
       </li>
+      <li>
+        <a href="Øvelser.html">
+          <div class="icon-box">T5</div>
+          <span class="link-text">Øvelser</span>
+        </a>
+      </li>
     </ul>
+    <div class="sidebar-footer">
+      <a id="admin-link" href="admin.html" style="display: none;">
+        <div class="icon-box">
+          <img src="Images/admin.png" alt="Admin" style="max-width: 25px; max-height: 25px;">
+        </div>
+        <span class="link-text">Tilføj Træner</span>
+      </a>
+      <a href="#" onclick="logout(); return false;">
+        <div class="icon-box">
+          <img src="Images/back.png" alt="Log ud" style="max-width: 25px; max-height: 25px;">
+        </div>
+        <span class="link-text">Log ud</span>
+      </a>
+    </div>
   </nav>
 
 

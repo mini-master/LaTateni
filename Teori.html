@@ -4,16 +4,87 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LaTateni</title>
+  <title>LaTateni - Teori</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="Images/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
-  <script type="module" src="sketch.js"></script>
+  <script type="module" src="theory.js"></script>
 </head>
 
 <body>
 
   <div id="canvas-container"></div>
+
+  <main class="content-container">
+    <h1>Teori</h1>
+
+    <!-- Search Section -->
+    <div class="search-section">
+      <input type="text" id="theory-search" placeholder="Søg efter teori emner..." onkeyup="filterTheory()">
+      <select id="tag-filter" onchange="filterTheory()"
+        style="padding: 15px; border-radius: 12px; border: 2px solid #eee;">
+        <option value="">Alle tags</option>
+      </select>
+    </div>
+
+    <!-- Add Theory Form -->
+    <div class="player-form-card">
+      <div class="form-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 onclick="toggleTheoryForm()" style="cursor: pointer; flex-grow: 1;">Tilføj Nyt Teori Emne +</h2>
+        <button onclick="generateTheoryAI()" class="ai-btn ai-btn-small" style="margin-left: 10px;">
+          ✨ AI Skriv Artikel
+        </button>
+      </div>
+
+      <div id="theory-form-content" class="form-content collapsed">
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label>Titel</label>
+            <input type="text" id="theory-title" placeholder="F.eks. Spin teknik grundlæggende">
+          </div>
+
+          <div class="form-group full-width">
+            <label>Brødtekst</label>
+            <textarea id="theory-body" rows="6" placeholder="Skriv teori indholdet her..."></textarea>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Links (komma-separeret)</label>
+            <input type="text" id="theory-links" placeholder="https://example.com, https://...">
+          </div>
+
+          <div class="form-group">
+            <label>Tags (komma-separeret)</label>
+            <input type="text" id="theory-tags" placeholder="Teknik, Begynder, Serv...">
+          </div>
+
+          <div class="form-group">
+            <label>Billeder</label>
+            <input type="file" id="theory-images" accept="image/*" multiple>
+          </div>
+        </div>
+
+        <button onclick="addTheory()" class="add-btn">Gem Teori Emne</button>
+      </div>
+    </div>
+
+    <!-- Theory Grid -->
+    <div id="theory-grid" class="player-grid">
+      <!-- Theory cards will be inserted here by JS -->
+    </div>
+  </main>
+
+  <!-- Modal for expanded theory view -->
+  <div id="theory-modal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <div id="modal-body"></div>
+    </div>
+  </div>
 
   <nav id="sidebar" class="sidebar">
     <div class="sidebar-header" onclick="toggleSidebar()">
@@ -51,7 +122,27 @@
           <span class="link-text">Teori</span>
         </a>
       </li>
+      <li>
+        <a href="Øvelser.html">
+          <div class="icon-box">T5</div>
+          <span class="link-text">Øvelser</span>
+        </a>
+      </li>
     </ul>
+    <div class="sidebar-footer">
+      <a id="admin-link" href="admin.html" style="display: none;">
+        <div class="icon-box">
+          <img src="Images/admin.png" alt="Admin" style="max-width: 25px; max-height: 25px;">
+        </div>
+        <span class="link-text">Tilføj Træner</span>
+      </a>
+      <a href="#" onclick="logout(); return false;">
+        <div class="icon-box">
+          <img src="Images/back.png" alt="Log ud" style="max-width: 25px; max-height: 25px;">
+        </div>
+        <span class="link-text">Log ud</span>
+      </a>
+    </div>
   </nav>
 
 

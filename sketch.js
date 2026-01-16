@@ -1,7 +1,8 @@
 // LaTateni Logic - Firebase Edition
-import { db, auth, ADMIN_EMAILS } from './firebase-config.js';
-import { collection, addDoc, deleteDoc, doc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { db, auth } from './firebase-config.js';
+import { collection, addDoc, deleteDoc, doc, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { suggestExercisesForPlayer, analyzePlayer, getRemainingRequests } from './ai-helper.js';
 
 let currentUser = null;
 let unsubscribePlayers = null; // To stop listener on logout
@@ -224,13 +225,137 @@ function renderGrid(players) {
                 </div>
 
                 ${player.notes ? `<div class="player-notes">"${player.notes}"</div>` : ''}
-
-                <div class="tags-container">${tagsHtml}</div>
+                
+                <div class="tags-container">
+                    ${tagsHtml}
+                </div>
+                
+                <div style="display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap;">
+                  <button class="ai-btn ai-btn-small" onclick="event.stopPropagation(); suggestExercisesForPlayerAI('${player.id}')">
+                    🤖 AI Forslag
+                  </button>
+                  <button class="ai-btn ai-btn-small" onclick="event.stopPropagation(); analyzePlayerAI('${player.id}')">
+                    🧠 AI Analyse
+                  </button>
+                </div>
+                
                 <button class="delete-btn" onclick="deletePlayer('${player.id}')">Slet Spiller</button>
             </div>
         `;
     grid.appendChild(card);
   });
+}
+
+// ============================================
+// AI Features
+// ============================================
+
+let allExercises = []; // Cache for AI suggestions
+
+// Load exercises for AI
+async function loadExercisesForAI() {
+  if (allExercises.length > 0) return allExercises; // Already loaded
+
+  if (!currentUser) return [];
+
+  const q = query(collection(db, "exercises"), where("ownerId", "==", currentUser.uid));
+  const snapshot = await getDocs(q);
+
+  allExercises = [];
+  snapshot.forEach((doc) => {
+    allExercises.push({ id: doc.id, ...doc.data() });
+  });
+
+  return allExercises;
+}
+
+// AI: Suggest Exercises for Player
+window.suggestExercisesForPlayerAI = async function (playerId) {
+  const player = allPlayersCache.find(p => p.id === playerId);
+  if (!player) return alert("Spiller ikke fundet");
+
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="ai-loading"></span> AI tænker...';
+
+  try {
+    const exercises = await loadExercisesForAI();
+
+    if (exercises.length === 0) {
+      alert("Du skal først tilføje øvelser i Øvelser-banken for at bruge AI forslag!");
+      return;
+    }
+
+    const suggestions = await suggestExercisesForPlayer(player, exercises);
+
+    // Show in modal
+    showAIResultModal(`AI Øvelsesforslag til ${player.name}`, suggestions);
+
+  } catch (error) {
+    alert("Fejl: " + error.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🤖 AI Forslag';
+  }
+}
+
+// AI: Analyze Player
+window.analyzePlayerAI = async function (playerId) {
+  const player = allPlayersCache.find(p => p.id === playerId);
+  if (!player) return alert("Spiller ikke fundet");
+
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="ai-loading"></span> Analyserer...';
+
+  try {
+    const analysis = await analyzePlayer(player);
+    showAIResultModal(`AI Analyse af ${player.name}`, analysis);
+
+  } catch (error) {
+    alert("Fejl: " + error.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🧠 AI Analyse';
+  }
+}
+
+// Show AI Result Modal
+function showAIResultModal(title, content) {
+  // Reuse theory modal if exists, or create inline modal
+  let modal = document.getElementById('ai-modal');
+
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'ai-modal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+      <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeAIModal()">&times;</span>
+        <div id="ai-modal-body"></div>
+      </div>
+    `;
+    modal.onclick = () => closeAIModal();
+    document.body.appendChild(modal);
+  }
+
+  const modalBody = document.getElementById('ai-modal-body');
+  const remaining = getRemainingRequests();
+
+  modalBody.innerHTML = `
+    <h2>${title} <span class="ai-badge">AI</span></h2>
+    <div class="ai-result-content">${content}</div>
+    <p style="text-align: right; color: #999; font-size: 0.85rem; margin-top: 15px;">
+      ${remaining} AI forespørgsler tilbage i dag
+    </p>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+window.closeAIModal = function () {
+  const modal = document.getElementById('ai-modal');
+  if (modal) modal.style.display = 'none';
 }
 
 function getLevelColor(level) {
